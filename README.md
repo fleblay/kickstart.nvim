@@ -13,8 +13,8 @@ upstream changes merge cleanly (`git merge upstream/master`).
 ## Install (macOS)
 
 ```sh
-git clone git@github.com:fleblay/kickstart-modular.nvim.git ~/git/kickstart-modular.nvim
-~/git/kickstart-modular.nvim/setup.sh
+git clone git@github.com:fleblay/kickstart.nvim.git ~/git/kickstart.nvim
+~/git/kickstart.nvim/setup.sh
 ```
 
 The script installs Homebrew (if needed) and all dependencies from the
@@ -31,7 +31,7 @@ Afterwards: set your terminal font to **JetBrainsMono Nerd Font** and run
 | --- | --- |
 | Plugins | `:lua vim.pack.update()` (`:lua vim.pack.update(nil, { offline = true })` to preview) |
 | LSP servers & tools | `:Mason` |
-| Brew packages | `brew bundle --file ~/git/kickstart-modular.nvim/Brewfile` |
+| Brew packages | `brew bundle --file ~/git/kickstart.nvim/Brewfile` |
 
 ## Languages
 
