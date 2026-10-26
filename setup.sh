@@ -1,17 +1,34 @@
 #!/usr/bin/env bash
 #
 # Bootstrap this Neovim config on a fresh macOS machine:
-#   installs Homebrew (if missing) and all dependencies, symlinks the repo
-#   to ~/.config/nvim, then installs plugins, LSP servers and parsers.
+#   installs Homebrew (if missing) and all packages, symlinks the repo
+#   to ~/.config/nvim and the tmux and Ghostty configs into place, then
+#   installs plugins, LSP servers and parsers.
 #
 # Idempotent: safe to re-run at any time.
 
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-NVIM_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+NVIM_CONFIG="$CONFIG_HOME/nvim"
 
 step() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
+
+# link <src> <dest>: symlink dest -> src, backing up whatever is in the way
+link() {
+  local src="$1" dest="$2"
+  [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ] && return
+  echo "Linking $dest -> $src"
+  if [ -e "$dest" ] || [ -L "$dest" ]; then
+    local backup
+    backup="$dest.bak.$(date +%Y%m%d%H%M%S)"
+    echo "  backing up existing $dest to $backup"
+    mv "$dest" "$backup"
+  fi
+  mkdir -p "$(dirname "$dest")"
+  ln -s "$src" "$dest"
+}
 
 # 1. Homebrew
 if ! command -v brew >/dev/null 2>&1; then
@@ -22,9 +39,6 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # 2. Dependencies
 step "Installing dependencies (brew bundle)"
-# Newer Homebrew refuses formulas from untrusted third-party taps
-brew tap --quiet hashicorp/tap 2>/dev/null || true
-brew trust hashicorp/tap 2>/dev/null || true
 brew bundle --file "$REPO_DIR/Brewfile"
 
 # Mason needs brew's node (>= 18) to shadow any older system install
@@ -34,14 +48,11 @@ case "$node_path" in
   *) echo "WARNING: node resolves to $node_path — make sure /opt/homebrew/bin comes first in PATH" ;;
 esac
 
-# 3. Symlink config
-step "Linking $NVIM_CONFIG -> $REPO_DIR"
-if [ -e "$NVIM_CONFIG" ] && [ "$(readlink "$NVIM_CONFIG" || true)" != "$REPO_DIR" ]; then
-  backup="$NVIM_CONFIG.bak.$(date +%Y%m%d%H%M%S)"
-  echo "Backing up existing config to $backup"
-  mv "$NVIM_CONFIG" "$backup"
-fi
-[ -L "$NVIM_CONFIG" ] || ln -s "$REPO_DIR" "$NVIM_CONFIG"
+# 3. Symlink configs
+step "Linking configs"
+link "$REPO_DIR" "$NVIM_CONFIG"
+link "$REPO_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
+link "$REPO_DIR/ghostty/config.ghostty" "$CONFIG_HOME/ghostty/config.ghostty"
 
 # 4. First boot: vim.pack clones all plugins synchronously.
 #    stdin from /dev/null makes the install prompt proceed non-interactively.
@@ -59,7 +70,7 @@ step "Done"
 cat <<'EOF'
 
 Next steps:
-  1. Set your terminal font to "JetBrainsMono Nerd Font"
+  1. Reload tmux if it is running: tmux source-file ~/.tmux.conf
   2. Open nvim and run :checkhealth
   3. Update plugins later with :lua vim.pack.update()  — tools with :Mason
 EOF

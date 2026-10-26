@@ -9,6 +9,7 @@ upstream changes merge cleanly (`git merge upstream/master`).
 - **Nvim 0.12+** — plugins are managed by the built-in `vim.pack`, no plugin-manager plugin.
 - LSP servers, formatters and linters are installed by **Mason**.
 - System dependencies are installed by **Homebrew** via `setup.sh`.
+- Also carries the **tmux** and **Ghostty** configs, tuned to work with it.
 
 ## Install (macOS)
 
@@ -17,13 +18,21 @@ git clone git@github.com:fleblay/kickstart.nvim.git ~/git/kickstart.nvim
 ~/git/kickstart.nvim/setup.sh
 ```
 
-The script installs Homebrew (if needed) and all dependencies from the
-`Brewfile`, symlinks this repo to `~/.config/nvim` (backing up anything
-already there), then headlessly installs plugins, LSP servers and
-treesitter parsers. Re-running it is safe.
+The script installs Homebrew (if needed) and every package from the
+`Brewfile` (the full machine setup: CLI tools and apps), then creates these
+symlinks, backing up anything already there:
 
-Afterwards: set your terminal font to **JetBrainsMono Nerd Font** and run
-`:checkhealth` once.
+| Link | Target |
+| --- | --- |
+| `~/.config/nvim` | this repo |
+| `~/.tmux.conf` | `tmux/tmux.conf` |
+| `~/.config/ghostty/config.ghostty` | `ghostty/config.ghostty` |
+
+Finally it headlessly installs plugins, LSP servers and treesitter parsers.
+Re-running it is safe.
+
+Afterwards run `:checkhealth` once. Ghostty uses its built-in JetBrains Mono,
+which includes Nerd Font symbols, so no font install is needed.
 
 ## Updating
 
@@ -70,6 +79,10 @@ init.lua                    kickstart's single-file config, in 10 sections
 lua/kickstart/plugins/*.lua kickstart's optional plugins (neo-tree, autopairs,
                             indent_line enabled in SECTION 10)
 lua/custom/plugins/*.lua    personal plugins and keymaps (auto-loaded)
+tmux/tmux.conf              tmux config (prefix C-Space, vi copy mode)
+ghostty/config.ghostty      Ghostty config (tokyonight theme, left Option = Alt)
+Brewfile                    every brew tap, formula and cask to install
+setup.sh                    bootstrap script
 ```
 
 Pull upstream changes with `git fetch upstream && git merge upstream/master`.

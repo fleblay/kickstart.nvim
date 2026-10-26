@@ -1,0 +1,35 @@
+# Ghostty config, tuned for tmux + neovim
+# Full reference: ghostty +show-config --default --docs
+
+# --- Appearance ---
+# Matches nvim colorscheme tokyonight-night
+theme = TokyoNight Night
+# Embedded in Ghostty, Nerd Font symbols built in
+font-family = JetBrains Mono
+font-size = 14
+window-padding-x = 4
+window-padding-y = 4
+window-padding-balance = true
+cursor-style-blink = false
+mouse-hide-while-typing = true
+
+# --- Shell integration ---
+# no-cursor: let zsh vi-mode and nvim own the cursor shape
+# ssh-env: fall back to TERM=xterm-256color on remote hosts without ghostty terminfo
+shell-integration-features = no-cursor,ssh-env
+
+# --- macOS ---
+# Left Option acts as Alt/Meta for tmux, nvim, zsh. Right Option still types accents.
+macos-option-as-alt = left
+window-save-state = always
+# tmux keeps sessions alive, so closing a window is safe
+confirm-close-surface = false
+
+# --- Legacy control keys ---
+# When nvim/tmux enable the kitty keyboard protocol or modifyOtherKeys, Ghostty
+# encodes these as escape sequences, which some apps do not map back to
+# Enter/Tab/Escape. Force the classic bytes so they always behave the same.
+keybind = ctrl+m=text:\r
+keybind = ctrl+j=text:\n
+keybind = ctrl+i=text:\t
+keybind = ctrl+bracket_left=text:\x1b
